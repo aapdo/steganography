@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+// Added implementation, needed to compile jUnit test classes
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
+    implementation('org.junit.jupiter:junit-jupiter:5.6.0')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+/* Added the whole sourceSets section, so that the source and
+   test files did NOT have to always follow this structure
+      main/java
+      test/java
+
+   Eclipse puts them all in the src folder by default, so this
+   sourceSets statement will handle where Eclipse puts them by
+   default, as well as work with the folder structure expected
+   by Gradle.
+*/
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src", "main/java","test"]
+    }
+    }
+    test {
+       java {
+           srcDirs = ["src", "test/java","test"]
+        }
+    }
+}
+
+// This is in here for debugging purposes. Not strictly needed.
+// Gives some info on where gradle is currently looking for filess.
+task sourceSetProperties {
+    sourceSets {
+        main {
+            println "java.srcDirs = ${java.srcDirs}"
+            println "resources.srcDirs = ${resources.srcDirs}"
+            println "java.files = ${java.files.name}"
+            println "allJava.files = ${allJava.files.name}"
+            println "resources.files = ${resources.files.name}"
+            println "allSource.files = ${allSource.files.name}"
+        }
+    }
+}
