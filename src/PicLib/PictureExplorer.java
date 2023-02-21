@@ -102,12 +102,17 @@ public class PictureExplorer implements MouseMotionListener, ActionListener, Mou
    */
   public PictureExplorer(DigitalPicture picture)
   {
-    // set the fields
-    this.picture=picture;
-    zoomFactor=1;
-    
-    // create the window and set things up
-    createWindow();
+    try {
+      // set the fields
+      this.picture = picture;
+      zoomFactor = 1;
+
+      // create the window and set things up
+
+      createWindow();
+    } catch (Exception e) {
+      System.out.println("e = " + e);
+    }
   }
   
   /**
@@ -226,11 +231,18 @@ public class PictureExplorer implements MouseMotionListener, ActionListener, Mou
    */
   private void setUpNextAndPreviousButtons()
   {
-    // create the image icons for the buttons
-    Icon prevIcon = new ImageIcon(DigitalPicture.class.getResource("leftArrow.gif"), 
-                                  "previous index");
-    Icon nextIcon = new ImageIcon(DigitalPicture.class.getResource("rightArrow.gif"), 
-                                  "next index");
+    Icon prevIcon;
+    Icon nextIcon;
+    try {
+      // create the image icons for the buttons
+      prevIcon = new ImageIcon(DigitalPicture.class.getResource("leftArrow.gif"),
+              "previous index");
+      nextIcon = new ImageIcon(DigitalPicture.class.getResource("rightArrow.gif"),
+              "next index");
+    } catch (Exception e) {
+      System.out.println("null setUpNextAndPreviousButtons: "+e);
+      return;
+    }
     // create the arrow buttons
     colPrevButton = new JButton(prevIcon);
     colNextButton = new JButton(nextIcon);

@@ -109,19 +109,25 @@ public class SimplePicture implements DigitalPicture
   */
  public SimplePicture(SimplePicture copyPicture)
  {
-   if (copyPicture.fileName != null)
-   {
-      this.fileName = new String(copyPicture.fileName);
-      this.extension = copyPicture.extension;
-   }
-   if (copyPicture.title != null)
-      this.title = new String(copyPicture.title);
-   if (copyPicture.bufferedImage != null)
-   {
-     this.bufferedImage = new BufferedImage(copyPicture.getWidth(),
-                                            copyPicture.getHeight(), BufferedImage.TYPE_INT_RGB);
-     this.copyPicture(copyPicture);
-   }
+     try{
+         if (copyPicture.fileName != null)
+         {
+             this.fileName = new String(copyPicture.fileName);
+             this.extension = copyPicture.extension;
+         }
+         if (copyPicture.title != null)
+             this.title = new String(copyPicture.title);
+         if (copyPicture.bufferedImage != null)
+         {
+             this.bufferedImage = new BufferedImage(copyPicture.getWidth(),
+                     copyPicture.getHeight(), BufferedImage.TYPE_INT_RGB);
+             this.copyPicture(copyPicture);
+        }
+     }catch (Exception e){
+         System.out.println("e = " + e);
+
+     }
+
  }
  
  /**

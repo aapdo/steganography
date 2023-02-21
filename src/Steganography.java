@@ -1,6 +1,8 @@
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 
+import PicLib.DigitalPicture;
 import PicLib.Picture;
 import PicLib.Pixel;
 import PicLib.Point;
@@ -28,21 +30,21 @@ public class Steganography {
 		int b = p.getBlue();
 		// TODO: clear the lowest two bits of each color component
 		// To clear the lower two bits, divide by 4 and then multiply by 4
-		/** not yet implemented **/
-
-
-
+		//clear
+		r = (r/4)*4;
+		g = (g/4)*4;
+		b = (b/4)*4;
 		// TODO: set the RGB components of the pixel to the new values
-		/** not yet implemented **/
-
-
-
+		//set
+		p.setRed(r);
+		p.setGreen(g);
+		p.setBlue(b);
 	}
 
 	/**
 	 * Creates a copy of original and then clears the lower two bits of every
 	 * pixel in the picture. Must use the clearLow method. Returns the Picture copy.
-	 * @param original the original picture. 
+	 * @param original the original picture.
 	 * @return a copy of the original picture that has the lower two bits
 	 *  of every pixel cleared
 	 */
@@ -55,9 +57,11 @@ public class Steganography {
 		Pixel [][] pixels = copy.getPixels2D();
 
 		// TODO: use a for each loop to clear the low bits of each pixel
-
-
-
+		for (Pixel[] pixel : pixels) {
+			for (Pixel p : pixel) {
+				clearLow(p);
+			}
+		}
 
 		// return the copy
 		return copy;
@@ -81,16 +85,23 @@ public class Steganography {
 		int g = c.getGreen();
 		int b = c.getBlue();
 		// TODO (1.10): get the highest two bits of the color using maths!
-		/** not yet implemented **/
 		// to get the highest two bits, divide by 64.
 
-
+		r = r / 64;
+		g = g / 64;
+		b = b / 64;
 		// TODO (1.11): set the RGB components of the pixel to new values
-		/** not yet implemented **/
-		// to set a color component (RGB), add the cleared value to 
+		// to set a color component (RGB), add the cleared value to
 		// highest 2 bits of c
-
-
+		p.setRed(p.getRed()+ r);
+		p.setGreen(p.getGreen()+ g);
+		p.setBlue(p. getBlue() + b);
+		/**
+		 * ex)
+		 * p.r: 1000 1011 c.r: 1101 1010
+		 * ==> p.r: 1000 1011
+		 *
+		 */
 	}
 
 	/**
@@ -107,9 +118,9 @@ public class Steganography {
 		// get an array of pixels from the copy
 		Pixel[] pixels = copy.getPixels();
 		// TODO (1.12): use a for each loop to set the low bits of each pixel
-		/** not yet implemented **/
-
-
+		for (Pixel pixel : pixels) {
+			setLow(pixel, c);
+		}
 
 		// return the copy
 		return copy;
@@ -132,9 +143,18 @@ public class Steganography {
 		Pixel[][] pixels = copy.getPixels2D();
 		// get a 2D array of pixels from the source image
 		Pixel[][] source = hidden.getPixels2D();
-		// TODO (1.13): traverse pixels using a nested for loop
-		/** not yet implemented **/
 
+		// TODO (1.13): traverse pixels using a nested for loop
+		//copy pixels clear
+
+		for (Pixel[] pixel : pixels) {
+			for (Pixel p : pixel) {
+				// >> 2
+				p.setRed(p.getRed() / 4);
+				p.setGreen(p.getGreen() / 4);
+				p.setBlue(p.getBlue() / 4);
+			}
+		}
 
 		// TODO (1.14): set red, green, and blue values of each 
 		//              pixel to the lowest two bits in source
@@ -147,6 +167,13 @@ public class Steganography {
 		// set all the color components (red, green, blue)
 		// To get the lower 2 bits of a color component and 
 		// make that the upper bits, % 4 * 64
+		for (int i = 0; i < pixels.length; i++) {
+			for (int j = 0; j < pixels[0].length; j++) {
+				pixels[i][j].setRed(pixels[i][j].getRed() + (source[i][j].getRed() % 4 * 64) );
+				pixels[i][j].setGreen(pixels[i][j].getGreen() + (source[i][j].getGreen() % 4 * 64) );
+				pixels[i][j].setBlue(pixels[i][j].getBlue() + (source[i][j].getBlue() % 4 * 64) );
+			}
+		}
 
 		// return the copy. Since the pixels that you modified are referenced from 
 		// copy, copy contains the hidden secret picture.
@@ -169,7 +196,13 @@ public class Steganography {
 	public static boolean canHide(Picture source, Picture secret) {
 		// TODO (2.8): determine whether secret can be hidden in source
 		/** not yet implemented **/
-		return false;
+		boolean flag = false;
+		Pixel[][] sourcePixels = source.getPixels2D();
+		Pixel[][] secretPixels = secret.getPixels2D();
+		if (secretPixels.length == sourcePixels.length && secretPixels[0].length == sourcePixels[0].length) {
+			flag = true;
+		}
+		return flag;
 	}
 
 	// Exercise 2.9
@@ -189,18 +222,25 @@ public class Steganography {
 		Picture hidden = new Picture(source);
 		Pixel[][] hPixels = hidden.getPixels2D();
 		Pixel[][] sPixels = secret.getPixels2D();
+		int lowLen = hPixels.length;
+		int colLen = hPixels[0].length;
 
 		// Traverse hPixels
 		// Get the corresponding pixel from sPixels
 
 		// call setLow on hPixels, using the color from 
 		// the pixel in sPixels
+		for (int i = 0; i < lowLen; i++) {
+			for (int j = 0; j < colLen; j++) {
+				setLow(hPixels[i][j], sPixels[i][j].getColor());
+			}
+		}
 
 
 		// return hidden. Since the pixels that you modified are referenced from 
 		// the hidden, hidden contains the hidden secret picture.
 
-		return null;
+		return hidden;
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -560,15 +600,24 @@ public class Steganography {
 
 		////////////////////////////////////////////////////
 		// ACTIVITY 1: Exploring Color
+		File path = new File("images/beach.jpg");
+
+		System.out.println("path = " + path.getAbsolutePath());
 
 
 		// Part A
+		/*
 		Picture beach1dot8 = new Picture("beach.jpg");
 		beach1dot8.setTitle("Activity 1 - Part A: Beach Original");
 		beach1dot8.explore();
+		//System.out.println(DigitalPicture.class.getResource("src/PigLib/leftArrow.gif"));
+		//System.out.println(DigitalPicture.class.getResource("image/beach.jpg"));
 		Picture copy1dot8 = testClearLow(beach1dot8);
 		copy1dot8.setTitle("Activity 1 - Part A: Beach after testClearLow");
 		copy1dot8.explore();
+
+		 */
+
 		/*
         // Part B
         Picture beach1dot12 = new Picture("beach.jpg");
