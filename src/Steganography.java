@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 
-import PicLib.DigitalPicture;
 import PicLib.Picture;
 import PicLib.Pixel;
 import PicLib.Point;
@@ -158,8 +157,7 @@ public class Steganography {
 
 		// TODO (1.14): set red, green, and blue values of each 
 		//              pixel to the lowest two bits in source
-		/** not yet implemented **/
-		// 
+		//
 		// get the color from hidden
 
 		// get the pixel from copy
@@ -195,7 +193,6 @@ public class Steganography {
 	 */
 	public static boolean canHide(Picture source, Picture secret) {
 		// TODO (2.8): determine whether secret can be hidden in source
-		/** not yet implemented **/
 		boolean flag = false;
 		Pixel[][] sourcePixels = source.getPixels2D();
 		Pixel[][] secretPixels = secret.getPixels2D();
@@ -218,11 +215,10 @@ public class Steganography {
 	 */
 	public static Picture hidePicture(Picture source, Picture secret) {
 		// TODO (2.9): Create a copy of the source picture and hide a secret picture within the copy. Return the copy.
-		/** not yet implemented **/
 		Picture hidden = new Picture(source);
 		Pixel[][] hPixels = hidden.getPixels2D();
 		Pixel[][] sPixels = secret.getPixels2D();
-		int lowLen = hPixels.length;
+		int rowLen = hPixels.length;
 		int colLen = hPixels[0].length;
 
 		// Traverse hPixels
@@ -230,7 +226,7 @@ public class Steganography {
 
 		// call setLow on hPixels, using the color from 
 		// the pixel in sPixels
-		for (int i = 0; i < lowLen; i++) {
+		for (int i = 0; i < rowLen; i++) {
 			for (int j = 0; j < colLen; j++) {
 				setLow(hPixels[i][j], sPixels[i][j].getColor());
 			}
@@ -263,8 +259,18 @@ public class Steganography {
 	 */
 	public static boolean canHide(Picture source, Picture secret, int row, int col) {
 		// TODO (3.0): determine whether secret can be hidden in source at [row][col]
-		/** not yet implemented **/
-		return false;
+		boolean flag = false;
+		Pixel[][] sourcePixel = source.getPixels2D();
+		Pixel[][] secretPixel = secret.getPixels2D();
+		if(
+				row > -1 && col > -1 //row and col is bigger than -1
+				&& sourcePixel.length - row > secretPixel.length //source row is bigger than secret
+				&& sourcePixel[0].length - col > secretPixel[0].length //source col is bigger than secret
+		){
+			flag = true;
+		}
+
+		return flag;
 	}
 
 	// Exercise 3.1
@@ -284,17 +290,23 @@ public class Steganography {
 	 */
 	public static Picture hidePicture(Picture source, Picture secret, int row, int col) {
 		// TODO (3.1): hide a secret picture within a source picture at [row][col]
-		/** not yet implemented **/
 
+		Picture hidden = new Picture(source);
+		Pixel[][] hPixels = hidden.getPixels2D();
+		Pixel[][] sPixels = secret.getPixels2D();
+		int rowLen = sPixels.length;
+		int colLen = sPixels[0].length;
 
+		//secret을 감추기 때문에 secret 크기 만큼 반복.
+		for (int i = 0; i < rowLen; i++) {
+			for (int j = 0; j < colLen; j++) {
+				//원래 사진에서 row, col을 더한 곳에서부터 시작.
+				setLow(hPixels[i+row][j+col], sPixels[i][j].getColor());
+			}
 
+		}
 
-
-
-
-
-
-		return null;
+		return hidden;
 	}
 
 	// Exercise 3.2
@@ -314,16 +326,17 @@ public class Steganography {
 		// get a 2D array of pixels for each image
 		Pixel[][] pixels1 = image1.getPixels2D();
 		Pixel[][] pixels2 = image2.getPixels2D();
+		int rowLen = pixels1.length;
+		int colLen = pixels1[0].length;
 		// TODO (3.2): compare RGB values of pixel pairs using a nested for loop
-		/** not yet implemented **/
+		for (int i = 0; i < rowLen; i++) {
+			for (int j = 0; j < colLen; j++) {
+				if (!pixels1[i][j].getColor().equals(pixels2[i][j].getColor())) {
+					return false;
+				}
+			}
 
-
-
-
-
-
-
-
+		}
 
 		return true;
 	}
@@ -347,18 +360,18 @@ public class Steganography {
 		// get a 2D array of pixels for each image
 		Pixel[][] pixels = image1.getPixels2D();
 		Pixel[][] otherPixels = image2.getPixels2D();
+		int rowLen = pixels.length;
+		int colLen = pixels[0].length;
+
 		// compare RGB values of pixel pairs using a nested for loop
 		// TODO create an ArrayList of points where RGB values differ between pixels
-		/** not yet implemented **/
-
-
-
-
-
-
-
-
-
+		for (int i = 0; i < rowLen; i++) {
+			for (int j = 0; j < colLen; j++) {
+				if (!pixels[i][j].getColor().equals(otherPixels[i][j].getColor())) {
+					list.add(new Point(i, j));
+				}
+			}
+		}
 
 		return list;
 	}
@@ -376,25 +389,41 @@ public class Steganography {
 	public static Picture showDifferentArea(Picture image, ArrayList<Point> points) {
 		// create a new picture as a copy of the original
 		Picture copy = new Picture(image);
-
+		Pixel[][] copyPixels = copy.getPixels2D();
+		Pixel pixel;
+		int grey;
+		// find the minimum and maximum row values as well as the minimum and
+		// maximum column values for the bounding box that contains all points
+		int minRow, maxRow, minCol, maxCol;
+		// initialize the minimums and maximums to the values of the first point
+		//최대 최소를 다시 찾아야할 것 같음.
+		minRow = points.get(0).getRow();
+		maxRow = points.get(points.size()-1).getRow();
+		minCol = points.get(0).getCol();
+		maxCol = points.get(points.size()-1).getCol();
 		// return an image without a bounding box if the list of points is empty
 		if (points.size() == 0) {
 			return copy;
 		}
-		// find the minimum and maximum row values as well as the minimum and 
-		// maximum column values for the bounding box that contains all points
-		int minRow, maxRow, minCol, maxCol;
-		// initialize the minimums and maximums to the values of the first point
-		minRow = points.get(0).getRow();
-		maxRow = points.get(0).getRow();
-		minCol = points.get(0).getCol();
-		maxCol = points.get(0).getCol();
-		// TODO loop over the points in the list and find the bounding box 
-		/** not yet implemented **/
+		System.out.println("minCol = " + minCol);
 
-
-
-
+		// TODO loop over the points in the list and find the bounding box
+/*
+		for (int i = minCol; i < maxCol+1; i++) {
+			copyPixels[minRow][i].setColor(Color.RED);
+			copyPixels[maxRow][i].setColor(Color.RED);
+		}
+		for (int i = minRow; i < maxRow+1; i++) {
+			copyPixels[i][minCol].setColor(Color.RED);
+			copyPixels[i][maxCol].setColor(Color.RED);
+		}
+ */
+		for (int i = minRow; i < maxRow+1; i++) {
+			for (int j = minCol; j < maxCol+1; j++) {
+				copyPixels[i][j].setColor(Color.RED);
+				System.out.println("copyPixels["+i+"]["+j+"].getRed() = " + copyPixels[i][j].getRed());
+			}
+		}
 
 		// Create a rectangle that shows where the differences are.
 		// the border is Color.red
@@ -402,13 +431,21 @@ public class Steganography {
 		//   greyscale is computed by computing the average of the current 
 		//   red, green, and blue values
 
-		Pixel[][] pixels = copy.getPixels2D();
 		// TODO using a nested loop, determine if we are on
 		// the border of the rectangle or inside of it.
 		// if on the border, set the color to Color.red;
 		// if inside the rectangle, compute the greyscale for the original pixel and set the color to that.
-		/** not yet implemented **/
 
+		/*
+		for (int i = minRow+1; i < maxRow; i++) {
+			for (int j = minCol+1; j < maxCol; j++) {
+				pixel = copyPixels[i][j];
+				grey = (pixel.getRed() + pixel.getGreen() + pixel.getBlue())/2;
+				pixel.setColor(new Color(grey));
+			}
+		}
+
+		 */
 
 		// return the copy
 		return copy;
@@ -511,29 +548,42 @@ public class Steganography {
 		// create a new picture as a copy of the original
 		Picture copy = new Picture(image);
 		Pixel[] pixels = copy.getPixels();
-		/** not yet implemented **/
+		Pixel pixel;
+		int[] bitPair;
+		//determine loop times.
+		//if pixel.length < list.size ==> times are pixel.length
+		//because if times are list.size, then cause OutOfBonud.
+		int hiddenLen = pixels.length > list.size() ? list.size() : pixels.length;
 		// loop through the list, split up each letter into bit pairs, then
 		// TODO hide the bit pairs in the RGB info of the image pixels
 		// traverse the list of integers until you reach the end
 		// or there are no more pixels to modify
 
+		// clear the lower 2 bits of the Pixel to change
+		System.out.println("hiddenLen = " + hiddenLen);
+		for (int i = 0; i < hiddenLen; i++) {
+
+			clearLow(pixels[i]);
+		}
+
 		// Get an integer from the list
 
 		// call getBitPairs with that integer. A 3 element
 		// array of integers are returned.
-
 		// bitPairs[0] is red
-
 		// bitPairs[1] is green
-
 		// bitPairs[2] is blue
+		for (int i = 0; i < hiddenLen; i++) {
+			pixel = pixels[i];
+			bitPair = getBitPairs(list.get(i));
 
-		// clear the lower 2 bits of the Pixel to change
-
-		// set the red, green, and components to be a
-		// sum of the color component and the corresponding
-		// bitPairs element.
-
+			// set the red, green, and components to be a
+			// sum of the color component and the corresponding
+			// bitPairs element.
+			pixel.setRed(pixel.getRed() + bitPair[0]);
+			pixel.setGreen(pixel.getGreen() + bitPair[1]);
+			pixel.setBlue(pixel.getBlue() + bitPair[2]);
+		}
 
 		// return the copy
 		// Since the pixels that you modified are referenced from 
@@ -541,7 +591,7 @@ public class Steganography {
 		return copy;
 	}
 
-	
+
 	/**
 	 * Reveals the string that is hidden within the specified picture.
 	 * @param source picture with hidden string
@@ -549,39 +599,48 @@ public class Steganography {
 	 */
 	public static String revealText(Picture source) {
 		// declare an arrayList of Integer type to store the encoded text 
-		ArrayList<Integer> list = new ArrayList<Integer>();
+		ArrayList<Integer> textList = new ArrayList<Integer>();
 		// Get a 1D array of the pixels for source
 		Pixel[] pixels = source.getPixels();
+		int strToNum;
 		// TODO (4.3): loop though the pixels in an image and extract the hidden message
-		/** not yet implemented **/
-
 		// Traverse the 1D array
 		// for every pixel in the 1D Array
 		//    Create a 1D array of integers to hold color components
-		int[] bitPairs = new int[3];
-		//    get each color component's (Red, Green, Blue).
+		//int[] bitPairs = new int[3];
+		int[][] bitPairs = new int[pixels.length][3];
+		for (int i = 0; i < pixels.length; i++) {
+			//    get each color component's (Red, Green, Blue).
+			//    get each color component's lower 2 bits
+			//       The lower 2 bits can be obtained using % 4
+			//    add each color component to bitPairs
 
-		//    get each color component's lower 2 bits
-		//       The lower 2 bits can be obtained using % 4
+			//      bitPairs[0] is red
+			//      bitPairs[1] is green
+			//      bitPairs[2] is blue
+			bitPairs[i][0] = pixels[i].getRed() % 4;
+			bitPairs[i][1] = pixels[i].getGreen() % 4;
+			bitPairs[i][2] = pixels[i].getBlue() % 4;
+		}
 
-		//    add each color component to bitPairs
-		//      bitPairs[0] is red
 
-		//      bitPairs[1] is green
-
-		//      bitPairs[2] is blue
-
-		//    Create a number that can be decoded with decodeString
-		int number = getNumberFromBitPairs(bitPairs);
-		// if number is 0, we are done, so break
+		for (int i = 0; i < bitPairs.length; i++) {
+			//    Create a number that can be decoded with decodeString
+			strToNum = getNumberFromBitPairs(bitPairs[i]);
+			// if number is 0, we are done, so break
+			if (strToNum == 0) {
+				break;
+			}
+			//Add number to list
+			textList.add(strToNum);
+		}
 
 		// else 
-		//Add number to list
 
 		// Call decodeString to decode our array of integers
 		// to obtain the hidden string.
 		// return the revealed text
-		return decodeString(list);
+		return decodeString(textList);
 	}
 
 	////////////////////////////////////////////////////////////////////

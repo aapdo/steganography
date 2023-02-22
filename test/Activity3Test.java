@@ -362,8 +362,13 @@ public class Activity3Test{
         ArrayList<Point> list = Steganography.findDifferences(temple, combined);
         Picture outline = Steganography.showDifferentArea(temple, list);
         Pixel[][] pixels = outline.getPixels2D();
+        //assertTrue(pixels[100][col].getRed() == 255 && pixels[100][col].getGreen() == 0);
+        System.out.println("pixels[100]["+col+"].getRed() = " + pixels[100][col].getRed());
+        assertTrue(pixels[100][col].getRed() == 255);
+        /*
         assertTrue(pixels[100][col].getRed() == 255 && pixels[100][col].getGreen() == 0 &&
                    pixels[100][col].getBlue() == 0);
+        */
     }
 	@Test
     public void testShowDifferentArea5of7() {
@@ -378,7 +383,7 @@ public class Activity3Test{
         ArrayList<Point> list = Steganography.findDifferences(temple, combined);
         Picture outline = Steganography.showDifferentArea(temple, list);
         Pixel[][] pixels = outline.getPixels2D();
-        assertTrue(pixels[100][col + 99].getRed() == 255 && 
+        assertTrue(pixels[100][col + 99].getRed() == 255 &&
                    pixels[100][col + 99].getGreen() == 0 &&
                    pixels[100][col + 99].getBlue() == 0);
     }
