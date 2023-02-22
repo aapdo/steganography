@@ -395,34 +395,33 @@ public class Steganography {
 		// find the minimum and maximum row values as well as the minimum and
 		// maximum column values for the bounding box that contains all points
 		int minRow, maxRow, minCol, maxCol;
+		int[] rows = new int[points.size()];
+		int[] cols = new int[points.size()];
 		// initialize the minimums and maximums to the values of the first point
-		//최대 최소를 다시 찾아야할 것 같음.
-		minRow = points.get(0).getRow();
-		maxRow = points.get(points.size()-1).getRow();
-		minCol = points.get(0).getCol();
-		maxCol = points.get(points.size()-1).getCol();
+		for (int i = 0; i < points.size(); i++) {
+			rows[i] = points.get(i).getRow();
+			cols[i] = points.get(i).getCol();
+		}
+
+		minRow = getMin(rows);
+		maxRow = getMax(rows);
+		minCol = getMin(cols);
+		maxCol = getMax(cols);
+
 		// return an image without a bounding box if the list of points is empty
 		if (points.size() == 0) {
 			return copy;
 		}
-		System.out.println("minCol = " + minCol);
 
 		// TODO loop over the points in the list and find the bounding box
-/*
-		for (int i = minCol; i < maxCol+1; i++) {
-			copyPixels[minRow][i].setColor(Color.RED);
-			copyPixels[maxRow][i].setColor(Color.RED);
-		}
+
 		for (int i = minRow; i < maxRow+1; i++) {
 			copyPixels[i][minCol].setColor(Color.RED);
 			copyPixels[i][maxCol].setColor(Color.RED);
 		}
- */
-		for (int i = minRow; i < maxRow+1; i++) {
-			for (int j = minCol; j < maxCol+1; j++) {
-				copyPixels[i][j].setColor(Color.RED);
-				System.out.println("copyPixels["+i+"]["+j+"].getRed() = " + copyPixels[i][j].getRed());
-			}
+		for (int i = minCol; i < maxCol+1; i++) {
+			copyPixels[minRow][i].setColor(Color.RED);
+			copyPixels[maxRow][i].setColor(Color.RED);
 		}
 
 		// Create a rectangle that shows where the differences are.
@@ -436,20 +435,42 @@ public class Steganography {
 		// if on the border, set the color to Color.red;
 		// if inside the rectangle, compute the greyscale for the original pixel and set the color to that.
 
-		/*
 		for (int i = minRow+1; i < maxRow; i++) {
 			for (int j = minCol+1; j < maxCol; j++) {
 				pixel = copyPixels[i][j];
-				grey = (pixel.getRed() + pixel.getGreen() + pixel.getBlue())/2;
-				pixel.setColor(new Color(grey));
+				grey = ( pixel.getRed() + pixel.getGreen() + pixel.getBlue() )/3;
+				pixel.setRed(grey);
+				pixel.setGreen(grey);
+				pixel.setBlue(grey);
 			}
 		}
-
-		 */
 
 		// return the copy
 		return copy;
 	}
+
+	private static int getMin(int[] arr) {
+		int answer = Integer.MAX_VALUE;
+		for (int i = 0; i < arr.length; i++) {
+			if (answer > arr[i]) {
+				answer = arr[i];
+			}
+		}
+
+		return answer;
+	}
+
+	private static int getMax(int[] arr) {
+		int answer = Integer.MIN_VALUE;
+		for (int i = 0; i < arr.length; i++) {
+			if (answer < arr[i]) {
+				answer = arr[i];
+			}
+		}
+
+		return answer;
+	}
+
 
 	////////////////////////////////////////////////////////////////////
 	//
@@ -552,15 +573,15 @@ public class Steganography {
 		int[] bitPair;
 		//determine loop times.
 		//if pixel.length < list.size ==> times are pixel.length
-		//because if times are list.size, then cause OutOfBonud.
+		//because if times are list.size, then cause OutOfBound.
 		int hiddenLen = pixels.length > list.size() ? list.size() : pixels.length;
+
 		// loop through the list, split up each letter into bit pairs, then
 		// TODO hide the bit pairs in the RGB info of the image pixels
 		// traverse the list of integers until you reach the end
 		// or there are no more pixels to modify
 
 		// clear the lower 2 bits of the Pixel to change
-		System.out.println("hiddenLen = " + hiddenLen);
 		for (int i = 0; i < hiddenLen; i++) {
 
 			clearLow(pixels[i]);
@@ -659,9 +680,7 @@ public class Steganography {
 
 		////////////////////////////////////////////////////
 		// ACTIVITY 1: Exploring Color
-		File path = new File("images/beach.jpg");
 
-		System.out.println("path = " + path.getAbsolutePath());
 
 
 		// Part A

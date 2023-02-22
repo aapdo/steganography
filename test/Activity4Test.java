@@ -47,8 +47,7 @@ public class Activity4Test{
         Pixel[][] source = test.getPixels2D();
         Pixel[][] pixels = hidden.getPixels2D();
         // no pixels after 30th pixel of the 1st row should have changed
-        System.out.println("pixels[0][29].getRed() == source[0][29].getRed() = " + (pixels[0][29].getBlue() == source[0][29].getBlue()));
-        assertTrue(pixels[0][29].getRed() == source[0][29].getRed() && 
+        assertTrue(pixels[0][29].getRed() == source[0][29].getRed() &&
         		   pixels[0][29].getGreen() == source[0][29].getGreen() &&
                    pixels[0][29].getBlue() == source[0][29].getBlue());
     }
@@ -108,8 +107,6 @@ public class Activity4Test{
         text += text + text + text;
         text += text + text + text;
         text = text.trim();
-        System.out.println("text.length() = " + text.length());
-        System.out.println("test.getPixels().length = " + test.getPixels().length);
         Picture hidden = Steganography.hideText(test, text);
         String revealed = Steganography.revealText(hidden);
         assertEquals(test.getWidth() * test.getHeight(), revealed.length());
